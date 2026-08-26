@@ -1,13 +1,13 @@
-import express from "express";
+import express from 'express';
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/health", (_req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).json({
-    status: "ok",
-    message: "Chat backend is running",
+    status: 'ok',
+    message: 'Chat backend is running',
   });
 });
 
