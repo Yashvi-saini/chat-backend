@@ -1,7 +1,22 @@
+# Dependencies
 node_modules/
-dist/
+
+# Environment variables
 .env
 .env.*
-!.env.example
+
+# Build output
+dist/
+
+# Generated Prisma Client
+src/generated/prisma/
+
+# Test coverage
 coverage/
+
+# Logs
+*.log
+
+# OS files
 .DS_Store
+Thumbs.db

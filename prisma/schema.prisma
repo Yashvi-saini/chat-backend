@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Application {
+  id         String            @id @default(uuid())
+  name       String
+  apiKeyHash String            @unique
+  status     ApplicationStatus @default(ACTIVE)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  users         User[]
+  conversations Conversation[]
+}
+
+enum ApplicationStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model User {
+  id             String     @id @default(uuid())
+  applicationId  String
+  externalUserId String?
+  name           String
+  email          String?
+  passwordHash   String?
+  avatarUrl      String?
+  status         UserStatus @default(ACTIVE)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  application         Application         @relation(fields: [applicationId], references: [id])
+  conversationMembers ConversationMember[]
+  sentMessages Message[]
+  refreshTokens RefreshToken[]
+
+  @@unique([applicationId, externalUserId])
+  @@index([applicationId])
+  @@index([applicationId, email])
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model Conversation {
+  id            String           @id @default(uuid())
+  applicationId String
+  type          ConversationType
+  name          String?
+  status ConversationStatus @default(ACTIVE)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  application Application          @relation(fields: [applicationId], references: [id])
+  members     ConversationMember[]
+  messages    Message[]
+  @@index([applicationId])
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
+}
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model ConversationMember {
+  id             String     @id @default(uuid())
+  conversationId String
+  userId         String
+  role           MemberRole
+  joinedAt       DateTime   @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+}
+
+enum MemberRole {
+  MEMBER
+  ADMIN
+}
+model Message {
+  id             String      @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String?
+  messageType    MessageType @default(TEXT)
+  replyToId      String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation(fields: [senderId], references: [id])
+  replyTo      Message?     @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies      Message[]    @relation("MessageReplies")
+  attachments Attachment[]
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([replyToId])
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+model Attachment {
+  id          String   @id @default(uuid())
+  messageId   String
+  storageKey  String
+  fileName    String
+  mimeType    String
+  size        BigInt
+  createdAt   DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
