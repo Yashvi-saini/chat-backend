@@ -6,6 +6,7 @@ import { requestIdMiddleware } from './middleware/requestId.js';
 import { apiRateLimiter } from './middleware/rateLimiter.js';
 import { notFoundHandler } from './middleware/notFound.js';
 import { globalErrorHandler } from './middleware/errorHandler.js';
+import applicationRouter from './modules/applications/application.routes.js';
 
 const app = express();
 
@@ -39,6 +40,8 @@ app.get('/api/v1/health', (_req, res) => {
     },
   });
 });
+
+app.use('/api/v1/applications', applicationRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
