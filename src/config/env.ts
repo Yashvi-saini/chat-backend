@@ -18,4 +18,6 @@ export const env = {
   port:        Number(optionalEnv('PORT', '3000')),
   databaseUrl: requireEnv('DATABASE_URL'),
   corsOrigin:  optionalEnv('CORS_ORIGIN', 'http://localhost:3001'),
+  jwtSecret:   requireEnv('JWT_SECRET'),
+  jwtExpiresIn: optionalEnv('JWT_EXPIRES_IN', '15m'),
 } as const;
