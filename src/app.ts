@@ -8,6 +8,8 @@ import { notFoundHandler } from './middleware/notFound.js';
 import { globalErrorHandler } from './middleware/errorHandler.js';
 import applicationRouter from './modules/applications/application.routes.js';
 import authRouter from './modules/auth/auth.routes.js';
+import conversationRouter from './modules/conversations/conversation.routes.js';
+
 
 
 const app = express();
@@ -45,6 +47,7 @@ app.get('/api/v1/health', (_req, res) => {
 
 app.use('/api/v1/applications', applicationRouter);
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/conversations', conversationRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
