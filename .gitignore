@@ -1,9 +1,10 @@
 # Dependencies
 node_modules/
 
-# Environment variables
+# Environment variables — real secrets, never commit these
 .env
-.env.*
+.env.local
+.env.*.local
 
 # Build output
 dist/
