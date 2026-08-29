@@ -1,10 +1,18 @@
+import { createServer } from 'http';
 import app from './app.js';
 import { env } from './config/env.js';
 import logger from './config/logger.js';
+import { initWebSocketServer } from './websocket/index.js';
 
-const server = app.listen(env.port, () => {
+const httpServer = createServer(app);
+
+// Initialize Socket.io WebSocket server on the same HTTP port
+initWebSocketServer(httpServer);
+
+const server = httpServer.listen(env.port, () => {
   logger.info({ port: env.port, env: env.nodeEnv }, `Server running on http://localhost:${env.port}`);
 });
+
 
 
 function shutdown(signal: string): void {
