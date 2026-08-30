@@ -34,4 +34,5 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-CMD ["node", "dist/server.js"]
+# Automatically run prisma db push to ensure database tables are created on startup, then launch server
+CMD ["sh", "-c", "npx prisma db push && node dist/server.js"]
