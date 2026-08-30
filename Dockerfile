@@ -9,8 +9,13 @@ COPY prisma ./prisma/
 
 RUN npm ci
 
-# Copy source code and build TypeScript dist
+# Copy source code
 COPY . .
+
+# Set placeholder DATABASE_URL required by Prisma CLI during build stage
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+
+# Build TypeScript dist
 RUN npm run build
 
 # Production image
