@@ -4,7 +4,11 @@ import { PrismaClient } from '../generated/prisma/client.js';
 import { env } from './env.js';
 
 // Step 1: Create a pg connection pool with the database URL
-const pool = new Pool({ connectionString: env.databaseUrl });
+const isProduction = env.nodeEnv === 'production';
+const pool = new Pool({
+  connectionString: env.databaseUrl,
+  ssl: isProduction || env.databaseUrl.includes('render.com') ? { rejectUnauthorized: false } : undefined,
+});
 
 // Step 2: Wrap the pool with the Prisma adapter
 const adapter = new PrismaPg(pool);

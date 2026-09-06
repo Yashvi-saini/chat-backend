@@ -6,6 +6,7 @@ WORKDIR /app
 # Copy package manifests and install dependencies
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 
 RUN npm ci
 
@@ -31,8 +32,9 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./
 
 EXPOSE 3000
 
 # Automatically run prisma db push to ensure database tables are created on startup, then launch server
-CMD ["sh", "-c", "npx prisma db push && node dist/server.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/server.js"]
