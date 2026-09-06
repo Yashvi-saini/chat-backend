@@ -3,26 +3,30 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy package manifests and install dependencies
+# Set placeholder DATABASE_URL required by Prisma CLI during build stage
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+
+# Copy package manifests and prisma configuration
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 
-RUN npm ci
+# Install dependencies without running postinstall prematurely
+RUN npm ci --ignore-scripts
 
-# Copy source code
+# Copy remaining source code
 COPY . .
 
-# Set placeholder DATABASE_URL required by Prisma CLI during build stage
-ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
-
-# Build TypeScript dist
-RUN npm run build
+# Generate Prisma Client and build TypeScript dist
+RUN npx prisma generate && npm run build
 
 # Production image
 FROM node:22-alpine AS runner
 
 WORKDIR /app
+
+# Install OpenSSL for Prisma engine on Alpine Linux
+RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production
 ENV PORT=3000
